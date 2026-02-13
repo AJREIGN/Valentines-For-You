@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>For You 💗</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+  overflow-x: hidden;
+}
+
+/* Floating hearts / sparkles */
+.heart {
+  position: fixed;
+  bottom: -20px;
+  font-size: 20px;
+  animation: floatUp linear forwards;
+  pointer-events: none;
+}
+
+@keyframes floatUp {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(-120vh); opacity: 0; }
+}
+
+/* ===== INTRO LETTER ===== */
+.intro {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #ffb6c1, #ffe4e1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.envelope {
+  width: 320px;
+  height: 220px;
+  background: linear-gradient(135deg, #c9182b, #ff4d6d);
+  border-radius: 15px;
+  position: relative;
+  box-shadow: 0 25px 40px rgba(0,0,0,0.35);
+  cursor: pointer;
+  animation: fadeIn 1.5s ease;
+}
+
+.envelope::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.35), transparent 70%);
+  opacity: 0.6;
+  border-radius: 15px;
+  animation: shine 3s infinite;
+}
+
+@keyframes shine {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Envelope flap */
+.flap {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 50%;
+  background: linear-gradient(135deg, #a4131f, #e63946);
+  border-radius: 15px 15px 0 0;
+  transform-origin: top;
+  transition: 1s;
+}
+
+/* Container for each picture + text pair */
+.pair-container {
+  max-width: 1150px;
+  margin: 0 auto 90px;
+  padding: 35px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 30px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  transition: transform 0.4s ease;
+}
+
+.pair-container:hover {
+  transform: scale(1.02);
+}
+
+
+/* Letter paper */
+.paper {
+  position: absolute;
+  bottom: 10px;
+  left: 15px;
+  right: 15px;
+  height: 180px;
+  background: #fff5f7;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #5a1a1a;
+  transform: translateY(100%);
+  transition: 1.2s;
+}
+
+.envelope.open .flap { transform: rotateX(180deg); }
+.envelope.open .paper { transform: translateY(0); }
+
+.tap {
+  position: absolute;
+  bottom: -40px;
+  width: 100%;
+  text-align: center;
+  color: #fff;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* ===== MAIN CONTENT ===== */
+.main { display: none; }
+
+/* Header / Hero Text */
+.header {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  text-align: center;
+  transition: all 1.2s ease;
+}
+
+.header.moveTop { height: auto; padding: 70px 20px 40px; }
+
+#heroText {
+  font-size: 48px;
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 4px solid #fff;
+}
+
+#heroText.typing { animation: blink 0.7s step-end infinite; }
+
+#subText {
+  font-size: 18px;
+  margin-top: 15px;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+@keyframes blink {
+  0%,49%,100%{ border-color: transparent; }
+  50%{ border-color: #fff; }
+}
+
+/* Gallery */
+.gallery {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 50px;
+  margin-bottom: 90px;
+  opacity: 0;
+  transform: translateY(50px) scale(0.95);
+  transition: all 1s ease;
+}
+
+.row.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.row:nth-child(even) { flex-direction: row-reverse; }
+
+.row img {
+  width: 520px;
+  height: 340px;
+  object-fit: cover;
+  border-radius: 25px;
+  box-shadow: 0 25px 45px rgba(0,0,0,0.3);
+  transition: 0.4s;
+}
+
+.row img:hover { transform: scale(1.05); }
+
+.text {
+  background: rgba(255,255,255,0.9);
+  padding: 28px;
+  border-radius: 22px;
+  font-size: 18px;
+  line-height: 1.6;
+  max-width: 460px;
+  box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+}
+
+/* ✨ Beautiful Animated Letter Box */
+.letter-box {
+  max-width: 800px;
+  margin: 50px auto 100px;
+  padding: 35px 30px;
+  background: linear-gradient(145deg, #ffe4ec, #fff0f5);
+  border-radius: 25px;
+  box-shadow: 0 15px 35px rgba(255, 77, 109, 0.25), 0 10px 20px rgba(255, 77, 109, 0.15);
+  color: #5a1a1a;
+  font-size: 18px;
+  line-height: 1.8;
+  text-align: left;
+
+  /* Scrollable for long content */
+  max-height: 450px;
+  overflow-y: auto;
+  position: relative;
+
+  /* Animation */
+  opacity: 0;
+  transform: translateY(50px) scale(0.95);
+  transition: all 1s ease-out;
+}
+
+/* Show animation when scrolling into view */
+.letter-box.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Smooth, cute scrollbar */
+.letter-box::-webkit-scrollbar {
+  width: 10px;
+}
+
+.letter-box::-webkit-scrollbar-track {
+  background: #ffe4ec;
+  border-radius: 10px;
+}
+
+.letter-box::-webkit-scrollbar-thumb {
+  background: #ff4d6d;
+  border-radius: 10px;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+}
+
+.letter-box::-webkit-scrollbar-thumb:hover {
+  background: #e63946;
+}
+
+/* ✨ Floating sparkles inside the box */
+.letter-box::before {
+  content: '💖';
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 18px;
+  animation: sparkle 2s infinite alternate;
+  opacity: 0.7;
+}
+
+@keyframes sparkle {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0.5; }
+  50% { transform: translateY(-5px) rotate(15deg); opacity: 1; }
+  100% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+}
+
+/* Optional: soft glowing border effect */
+.letter-box {
+  border: 2px solid rgba(255, 77, 109, 0.4);
+  box-shadow: 0 0 20px rgba(255, 77, 109, 0.2), 0 10px 30px rgba(255, 77, 109, 0.25);
+  backdrop-filter: blur(5px);
+}
+
+
+/* Movie-style credits */
+.credits-section {
+  height: 150vh;
+  background: linear-gradient(to top, #fad0c4, #fad0c4);
+  color: #fff;
+  overflow: hidden;
+  position: relative;
+  margin-top: 120px;
+}
+
+.credits {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  bottom: -120%;
+  animation: rollCredits 42s linear forwards;
+}
+
+@keyframes rollCredits {
+  from { bottom: -120%; }
+  to { bottom: 130%; }
+}
+
+/* Mobile */
+@media(max-width:900px){
+  .row{ flex-direction: column !important; text-align:center; }
+  .row img{ width:100%; height:260px; }
+}
+/* ===== Growing Flower ===== */
+
+/* ===== Flower at Top ===== */
+
+.top-flower {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 60px;
+  transform: scale(0);
+  transition: transform 1.5s ease;
+}
+
+.top-flower.show {
+  transform: scale(1);
+}
+
+.top-flower .stem {
+  width: 6px;
+  height: 0;
+  background: linear-gradient(to top, #2e7d32, #66bb6a);
+  border-radius: 10px;
+  animation: growStemTop 2s ease forwards;
+}
+
+@keyframes growStemTop {
+  from { height: 0; }
+  to { height: 150px; }
+}
+
+.top-flower .flower {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin-bottom: -20px;
+  transform: scale(0);
+  animation: bloomTop 1.5s ease forwards 1.8s;
+}
+
+@keyframes bloomTop {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.top-flower .petal {
+  position: absolute;
+  width: 50px;
+  height: 80px;
+  background: radial-gradient(circle at top, #ff8fab, #ff4d6d);
+  border-radius: 50%;
+}
+
+.top-flower .p1 { top: 0; left: 25px; }
+.top-flower .p2 { bottom: 0; left: 25px; transform: rotate(180deg); }
+.top-flower .p3 { left: 0; top: 10px; transform: rotate(-90deg); }
+.top-flower .p4 { right: 0; top: 10px; transform: rotate(90deg); }
+
+.top-flower .center {
+  position: absolute;
+  top: 32px;
+  left: 32px;
+  width: 36px;
+  height: 36px;
+  background: radial-gradient(circle, #ffe066, #ffb703);
+  border-radius: 50%;
+  box-shadow: 0 0 15px #ffe066;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- INTRO LETTER -->
+<div class="intro" id="intro">
+  <div class="envelope" onclick="openLetter()">
+    <div class="flap"></div>
+    <div class="paper">
+      Hi…<br><br>
+      May ginawa ako para sayu small of appreciation lang<br>
+      sana magustuhan mo  💗
+    </div>
+    <div class="tap">Tap to open 💌</div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main" id="main">
+a
+<div class="header" id="header">
+  <h1 id="heroText"></h1>
+  <p id="subText">I hope this makes you smile</p>
+</div>
+
+<div class="flower-container" id="flowerContainer">
+  <div class="stem"></div>
+  <div class="flower">
+    <div class="petal p1"></div>
+    <div class="petal p2"></div>
+    <div class="petal p3"></div>
+    <div class="petal p4"></div>
+    <div class="center"></div>
+  </div>
+</div>
+
+<div class="gallery">
+
+  <div class="pair-container">
+    <div class="row">
+      <img src="1st.jpg">
+      <div class="text">I love the vibe of this shot, ang lakas talaga ng dating mo. 
+        You look so effortlessly stunning even in a simple pose, napaka-natural lang. 
+        Sobrang bagay sa'yo that look, keep it up!</div>
+    </div>
+  </div>
+
+  <div class="pair-container">
+    <div class="row">
+      <img src="2nd.jpg">
+      <div class="text">You look so cute and charming in this selfie,
+         lalo na with your glasses on. Bagay na bagay sa’yo your short hair, it really highlights 
+         your face. Sobrang ganda mo talaga, seriously!</div>
+    </div>
+  </div>
+
+  <div class="pair-container">
+    <div class="row">
+      <img src="3rd.jpg">
+      <div class="text">I love your outfit here, sobrang bagay sa’yo ang yellow!
+         You look so calm and pretty while studying or working. 
+         Ang lakas ng dating mo even when you're just being chill.</div>
+    </div>
+  </div>
+
+  <div class="pair-container">
+    <div class="row">
+      <img src="4th.jpg">
+      <div class="text">I love the aesthetic of this shot, sobrang high-fashion ng dating mo.
+         The corset and the scenery look so cool together, pak na pak ang outfit.
+          You look like a model here, honestly!</div>
+    </div>
+  </div>
+
+  <div class="pair-container">
+    <div class="row">
+      <img src="5th.jpg">
+      <div class="text">This close-up is so striking, lalo na how your hair falls over your face.
+         Ang ganda ng register of your features with those glasses. Sobrang edgy and cool, 
+         you really have that 'it' factor!</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="credits-section">
+  <div class="letter-box">
+    <h2>My Letter For You 💌</h2>
+    <p>
+      <br><br>
+      I just wanted to say na kahit malayo tayo, tuwing nakikita ko yung smile mo sa pictures,
+      gumaganda talaga yung araw ko. I really admire how you can pull off any look, from being
+      sweet and studious to looking so high-fashion and edgy. Sobrang lakas ng dating mo in every
+      post, and there’s just something about your gaze that's so captivating. You look so effortlessly
+      stunning whether you're just chilling in your yellow shirt or posing for an aesthetic shot by the
+      bridge. Bagay na bagay sa'yo everything, especially your glasses and that short hair that
+      highlights your face perfectly. Honestly, hindi nakakasawang tingnan ang photos mo
+      because your genuine energy always shines through. Every time you post a new photo, it feels 
+      like I’m seeing a different side of your personality that I really appreciate. I love how you stay 
+      true to your style and keep things fresh and natural no matter where you are. Even through a 
+      screen, lutang na lutang ang ganda mo and it’s hard not to be impressed by your confidence. 
+      Keep being your amazing self because you truly have that 'it' factor that makes you stand out 
+      from the rest. And Happy Valentine's Day! I hope this little surprise made you smile as much as your
+      photo posts always make me smile. You deserve all tje love and admiration in the world.
+    </p>
+  </div>
+</div>
+
+</div>
+
+<!-- Background music -->
+<audio id="bgMusic" loop>
+  <source src="bg-music.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+/* Open envelope */
+function openLetter() {
+  const env = document.querySelector('.envelope');
+  env.classList.add('open');
+  document.getElementById('bgMusic').volume = 0.5;
+  document.getElementById('bgMusic').play();
+  setTimeout(()=>{
+    document.getElementById('intro').style.display='none';
+    document.getElementById('main').style.display='block';
+    startTyping();
+  },1500);
+}
+
+/* Typing animation for hero text */
+const hero=document.getElementById("heroText");
+const subText=document.getElementById("subText");
+const header=document.getElementById("header");
+const heroText="Just a few things I admire 💕";
+let index=0;
+
+function startTyping() {
+  hero.classList.add("typing");
+  function typeChar(){
+    if(index<heroText.length){
+      hero.textContent+=heroText.charAt(index);
+      index++;
+      setTimeout(typeChar,100);
+    } else{
+      hero.classList.remove("typing");
+      subText.style.opacity=0.95;
+      setTimeout(()=>header.classList.add("moveTop"),1000);
+    }
+  }
+  typeChar();
+}
+
+/* Scroll reveal for gallery with cinematic pop */
+const rows=document.querySelectorAll('.row');
+const letterBox=document.querySelector('.letter-box');
+
+window.addEventListener('scroll',()=>{
+  rows.forEach((row,i)=>{
+    if(row.getBoundingClientRect().top < window.innerHeight-120){
+      setTimeout(()=>{
+        row.classList.add('show');
+       
+      }, i*200);
+    }
+  });
+
+  if(letterBox){
+    const rect = letterBox.getBoundingClientRect();
+    if(rect.top < window.innerHeight-100){
+      letterBox.classList.add('show');
+      confetti(50);
+       hearts(2);
+    }
+  }
+
+});
+
+/* Hearts */
+function hearts(n){
+  for(let i=0;i<n;i++){
+    const h=document.createElement('div');
+    h.className='heart';
+    h.innerText=Math.random()>0.5?'💗':'✨';
+    h.style.left=Math.random()*100+'vw';
+    h.style.animationDuration=(Math.random()*2+3)+'s';
+    document.body.appendChild(h);
+    setTimeout(()=>h.remove(),5000);
+  }
+}
+
+/* Confetti */
+function confetti(n){
+  for(let i=0;i<n;i++){
+    const c=document.createElement('div');
+    c.style.position='fixed';
+    c.style.width='8px';
+    c.style.height='8px';
+    c.style.background=['#ff4d6d','#ffe066','#ff8fab','#ffb6b9'][Math.floor(Math.random()*4)];
+    c.style.top='-10px';
+    c.style.left=Math.random()*100+'vw';
+    c.style.borderRadius='50%';
+    c.style.opacity=0.9;
+    c.style.zIndex=999;
+    c.style.transform=`rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(c);
+    c.animate([{transform:`translateY(0px) rotate(${Math.random()*360}deg)`},{transform:`translateY(100vh) rotate(${Math.random()*720}deg)`}],{duration:4000+Math.random()*2000,iterations:1,easing:'ease-out'});
+    setTimeout(()=>c.remove(),5000);
+  }
+}
+
+
+</script>
+<!-- Growing Flower -->
+
+
+</body>
+</html>
